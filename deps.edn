@@ -1,0 +1,1 @@
+{:deps {clj-test-containers/clj-test-containers {:mvn/version "0.7.4"}}}

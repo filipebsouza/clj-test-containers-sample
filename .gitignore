@@ -1,0 +1,7 @@
+.clj-kondo/
+/.nrepl-history
+/.nrepl-port
+.DS_Store
+.lsp
+.cpcache
+/.idea/
