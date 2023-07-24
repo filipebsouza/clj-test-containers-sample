@@ -2,25 +2,32 @@
   (:require [next.jdbc :as jdbc]
             [honey.sql :as sql]))
 
-(defn create-integration-test-cfg
+(defn get-datasource
   [host
-   password]
-  {:dbtype "postgresql"
-   :dbname "postgres"
-   :host host
-   :user "postgres"
-   :password password
-   :port 5432})
+   password
+   port]
+  (jdbc/get-datasource
+   {:dbtype "postgresql"
+    :dbname "postgres"
+    :user "postgres"
+    :password password
+    :host host
+    :port port}))
+
+(defn get-connection
+  [ds]
+  (try
+    (jdbc/get-connection ds)
+    (catch Exception e
+      (ex-data e))))
 
 (defn execute!
   "Executes a command or query on the database"
-  [db-cfg cmd-or-query-map]
-  (jdbc/execute! (jdbc/get-datasource db-cfg)
-                 (sql/format cmd-or-query-map)))
-
-(comment
-
-  (sql/format {:create-table :users
-               :with-columns
-               [[:id :int [:not nil]]
-                [:name [:varchar 32] [:not nil]]]}))
+  [conn cmd-or-query-map]
+  (try
+    (let [result (jdbc/execute! conn
+                                (sql/format cmd-or-query-map))]
+      (println "execute! result " result)
+      result)
+    (catch Exception e
+      (ex-data e))))
