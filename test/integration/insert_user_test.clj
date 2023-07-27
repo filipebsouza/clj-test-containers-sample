@@ -30,10 +30,3 @@
     (testing "select user with id 1"
       (is (= [#:users{:id 1, :name "John Doe"}]
              (db/execute! conn (queries.user/find-by-id 1)))))))
-
-(comment
-  (with-open [conn (db/get-connection (db/get-datasource "localhost"
-                                                         containers/postgres-password
-                                                         58344))]
-    (db/execute! conn (commands.user/insert-user 1 "John Doe"))
-    (db/execute! conn (queries.user/find-by-id 1))))
