@@ -3,6 +3,6 @@
 (defn find-by-id
   "Find a user by id"
   [id]
-  {:query [:select [:*]
-           :from [:users]
-           :where [:= :id id]]})
+  {:select [:id :name]
+   :from [:users]
+   :where [:= :id id]})

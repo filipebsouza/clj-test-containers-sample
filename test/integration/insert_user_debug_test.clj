@@ -1,4 +1,4 @@
-(ns integration.insert-user-test
+(ns integration.insert-user-debug-test
   (:require [clj-test-containers-sample.infra.commands.user :as commands.user]
             [clj-test-containers-sample.infra.queries.user :as queries.user]
             [clj-test-containers-sample.infra.db :as db]
@@ -7,19 +7,22 @@
             [integration.helpers.containers :as containers]))
 
 (def data-source (atom nil))
+(def postgres-container (atom nil))
+(def mapped-port (atom nil))
 
 (use-fixtures :once
   (fn [f]
     (let [postgres (-> (containers/create-postgres)
                        (containers/start!))]
+      (reset! postgres-container postgres)
+      (reset! mapped-port (get (:mapped-ports postgres) containers/postgres-port))
       (reset! data-source (db/get-datasource
                            (:host postgres)
                            containers/postgres-password
-                           (get (:mapped-ports postgres) containers/postgres-port)))
+                           @mapped-port))
       (with-open [conn (db/get-connection @data-source)]
         (db/execute! conn definitions.users/create-users))
-      (f)
-      (containers/stop! postgres))))
+      (f))))
 
 (deftest insert-user-test
   (with-open [conn (db/get-connection @data-source)]
@@ -34,6 +37,8 @@
 (comment
   (with-open [conn (db/get-connection (db/get-datasource "localhost"
                                                          containers/postgres-password
-                                                         58344))]
-    (db/execute! conn (commands.user/insert-user 1 "John Doe"))
-    (db/execute! conn (queries.user/find-by-id 1))))
+                                                         @mapped-port))]
+    (db/execute! conn (commands.user/insert-user 2 "Other user"))
+    (db/execute! conn (queries.user/find-by-id 2)))
+
+  (containers/stop! @postgres-container))

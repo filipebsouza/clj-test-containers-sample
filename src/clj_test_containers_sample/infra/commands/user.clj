@@ -2,6 +2,7 @@
 
 (defn insert-user
   "Insert users"
-  [users]
-  [:insert-into [:users]
-   :values users])
+  [id name]
+  {:insert-into [:users]
+   :columns [:id :name]
+   :values [[id name]]})
